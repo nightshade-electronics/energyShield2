@@ -33,7 +33,7 @@
 
 // Define capacity of battery in mAh
 #ifndef BATTERY_CAPACITY 
-#define BATTERY_CAPACITY 2000
+#define BATTERY_CAPACITY 1800
 #endif
 
 // Define termination voltage of battery in mV
