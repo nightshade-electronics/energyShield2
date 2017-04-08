@@ -63,7 +63,8 @@ class NS_energyShield2
 		uint8_t month();
 		uint8_t year();
 		void 	clearAlarms();
-		void	sleepSeconds(int timeInSeconds);
+		void	writeAlarms(long alarmTimeSeconds);
+		void	sleepSeconds(long timeInSeconds);
 		
 		// Solar Functions
 		void 	setVMPP(int MPP_Voltage_mV, bool writeEEPROM);

@@ -135,17 +135,42 @@ void NS_energyShield2::clearAlarms()
   return;
 }
 
-// Turns off 5V and 3.3V output for timeInSeconds seconds
-void NS_energyShield2::sleepSeconds(int timeInSeconds)
-{
-  NS_energyShield2::readClock(); // Get current time
-  NS_energyShield2::clearAlarms(); // Clear all active alarms
-  
-  TWI_writeByte(RTC_SLAVE_ADDR, 0x0B, encodeBCD((second() + timeInSeconds) % 60));
-	if (timeInSeconds >= 60) TWI_writeByte(RTC_SLAVE_ADDR, 0x0C, encodeBCD((NS_energyShield2::minute() + timeInSeconds/60)%60));
-	if (timeInSeconds >= 3600) TWI_writeByte(RTC_SLAVE_ADDR, 0x0D, encodeBCD((NS_energyShield2::hour() + timeInSeconds/3600)%24));
-	if (timeInSeconds >= 86400) TWI_writeByte(RTC_SLAVE_ADDR, 0x0F, encodeBCD((NS_energyShield2::dayOfWeek() + timeInSeconds/86400)%7));
+void NS_energyShield2::writeAlarms(long alarmTimeSeconds) {
+	uint8_t secondAlarm, minuteAlarm, hourAlarm, dayAlarm, chksum = 0, received;
 
+	do {    
+		NS_energyShield2::clearAlarms(); // Clear all active alarms
+		
+		secondAlarm = encodeBCD((second() + alarmTimeSeconds) % 60);
+		minuteAlarm = alarmTimeSeconds > 60 ? encodeBCD((NS_energyShield2::minute() + alarmTimeSeconds/60)%60) : 0;
+		hourAlarm = alarmTimeSeconds > 3600 ? encodeBCD((NS_energyShield2::hour() + alarmTimeSeconds/3600)%24) : 0;
+		dayAlarm = alarmTimeSeconds > 86400 ? encodeBCD((NS_energyShield2::dayOfWeek() + alarmTimeSeconds/86400)%7) : 0;
+
+		TWI_writeByte(RTC_SLAVE_ADDR, 0x0B, secondAlarm);
+		if (alarmTimeSeconds >= 60) TWI_writeByte(RTC_SLAVE_ADDR, 0x0C, minuteAlarm);
+		if (alarmTimeSeconds >= 3600) TWI_writeByte(RTC_SLAVE_ADDR, 0x0D, hourAlarm);
+		if (alarmTimeSeconds >= 86400) TWI_writeByte(RTC_SLAVE_ADDR, 0x0F, dayAlarm);  
+		
+		delay(1);
+		Wire.beginTransmission(RTC_SLAVE_ADDR);
+		Wire.write(0x0B);
+		Wire.endTransmission();
+		Wire.requestFrom(RTC_SLAVE_ADDR, 5);
+		for (int i=0;i<5;++i) {
+			received = Wire.read();
+			if (received < 128) chksum += received;
+		}		
+	} while (chksum != secondAlarm + minuteAlarm + hourAlarm + dayAlarm);
+}
+
+// Turns off 5V and 3.3V output for timeInSeconds seconds
+void NS_energyShield2::sleepSeconds(long timeInSeconds)
+{	
+  NS_energyShield2::readClock(); // Get current time
+  
+  // Write alarm registers
+  NS_energyShield2::writeAlarms(timeInSeconds);
+  
   // Sleep
   TWI_writeByte(RTC_SLAVE_ADDR, 0x01, B10000111);
 
@@ -158,12 +183,9 @@ void NS_energyShield2::sleepSeconds(int timeInSeconds)
     TWI_writeByte(RTC_SLAVE_ADDR, 0x0E, encodeBCD(dayOfMonth()));
     delay(1500);
 
-    // Set Wake-Up alarm to trigger
-    TWI_writeByte(RTC_SLAVE_ADDR, 0x0B, encodeBCD((second() + timeInSeconds) % 60));
-	if (timeInSeconds >= 60) TWI_writeByte(RTC_SLAVE_ADDR, 0x0C, encodeBCD((NS_energyShield2::minute() + timeInSeconds/60)%60));
-	if (timeInSeconds >= 3600) TWI_writeByte(RTC_SLAVE_ADDR, 0x0D, encodeBCD((NS_energyShield2::hour() + timeInSeconds/3600)%24));
-	if (timeInSeconds >= 86400) TWI_writeByte(RTC_SLAVE_ADDR, 0x0F, encodeBCD((NS_energyShield2::dayOfWeek() + timeInSeconds/86400)%7));
-
+	// Write alarm registers
+    NS_energyShield2::writeAlarms(timeInSeconds);
+	
     // Sleep
     TWI_writeByte(RTC_SLAVE_ADDR, 0x01, B10000111);
   }
