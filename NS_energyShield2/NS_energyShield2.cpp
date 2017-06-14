@@ -142,9 +142,9 @@ void NS_energyShield2::writeAlarms(long alarmTimeSeconds) {
 		NS_energyShield2::clearAlarms(); // Clear all active alarms
 		
 		secondAlarm = encodeBCD((second() + alarmTimeSeconds) % 60);
-		minuteAlarm = alarmTimeSeconds > 60 ? encodeBCD((NS_energyShield2::minute() + alarmTimeSeconds/60)%60) : 0;
-		hourAlarm = alarmTimeSeconds > 3600 ? encodeBCD((NS_energyShield2::hour() + alarmTimeSeconds/3600)%24) : 0;
-		dayAlarm = alarmTimeSeconds > 86400 ? encodeBCD((NS_energyShield2::dayOfWeek() + alarmTimeSeconds/86400)%7) : 0;
+		minuteAlarm = alarmTimeSeconds >= 60 ? encodeBCD((NS_energyShield2::minute() + alarmTimeSeconds/60)%60) : 0;
+		hourAlarm = alarmTimeSeconds >= 3600 ? encodeBCD((NS_energyShield2::hour() + alarmTimeSeconds/3600)%24) : 0;
+		dayAlarm = alarmTimeSeconds >= 86400 ? encodeBCD((NS_energyShield2::dayOfWeek() + alarmTimeSeconds/86400)%7) : 0;
 
 		TWI_writeByte(RTC_SLAVE_ADDR, 0x0B, secondAlarm);
 		if (alarmTimeSeconds >= 60) TWI_writeByte(RTC_SLAVE_ADDR, 0x0C, minuteAlarm);
