@@ -6,7 +6,7 @@ access all of the energyShield's advanced functionality. This functionality come
 from the energyShield's integrated battery fuel gauge, real-time clock, solar input 
 regulation, and voltage measurement ability. 
 
-Buy the energyShield 2 here: http://www.ns-electric.com/shop/
+**Buy the energyShield 2 at NightShade Electronics' online store: http://www.ns-electric.com/shop/**
 
 Written by Aaron Liebold for NightShade Electronics.
 
