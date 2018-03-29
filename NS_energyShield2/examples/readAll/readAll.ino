@@ -35,7 +35,8 @@ void setup() {
     Serial.println("! ERROR - Initialization Failed !");
     while (1);
   }
-  es2.setVMPP(-1, 1); // Disable VMPP regulation to allow charging from any power supply, 7V - 23V
+  
+  if (es2.readVMPP() != -1) es2.setVMPP(-1, 1); // Disable VMPP regulation to allow charging from any power supply (7V - 23V) and prevent excessive EEPROM writes
 
   // Print header
   Serial.println("Voltage, V\tCurrent, A\tFull Capacity, mAh\tRemaining Capacity, mAh\tState of Charge, %\tInput Voltage, V\tTemperature, C\tTime, HH:MM:SS\tDate, DD/MM/YY");

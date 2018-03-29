@@ -24,9 +24,9 @@
 NS_energyShield2 es2;
 
 void setup() {
-  es2.begin(); // Initialize energyShield
-  es2.setVMPP(-1, 1); // Disable VMPP regulation to allow charging from any source, 7V - 23V
-
+  es2.begin(); // Initialize energyShield  
+  if (es2.readVMPP != -1) es2.setVMPP(-1, 1); // Disable VMPP regulation to allow charging from any source (7V - 23V) and prevent excessive EEPROM writes
+  
   pinMode(13, OUTPUT);
 }
 

@@ -33,7 +33,8 @@ void setup() {
     Serial.println("enegyShield failed to initialize...");
     while (1);
   }
-  es2.setVMPP(-1, 1); // Disable VMPP regulation to allow charging from any source, 7V - 23V
+  
+  if (es2.readVMPP != -1) es2.setVMPP(-1, 1); // Disable VMPP regulation to allow charging from any source (7V - 23V) and prevent excessive EEPROM writes
 }
 
 void loop() {
