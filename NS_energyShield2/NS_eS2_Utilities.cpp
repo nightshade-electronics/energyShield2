@@ -98,9 +98,11 @@ int checkIfSealed(uint8_t slaveAddress) {
   return (flags & 0x2000);
 }
 
-int setupFuelGauge(uint8_t slaveAddress, uint16_t newDesignCapacity_mAh, uint16_t newTerminationVoltage_mV, uint16_t chargeTerminationCurrent_mA) {
+int setupFuelGauge(uint8_t slaveAddress, uint16_t newDesignCapacity_mAh, uint16_t newTerminationVoltage_mV, uint16_t chargeTerminationCurrent_mA, uint8_t alarmSOC) {
 	uint16_t flags, oldDesignCapacity, oldDesignEnergy, oldTerminationVoltage, oldTaperRate, newDesignEnergy, newTerminationRate;
 	uint8_t oldCheckSum, tempCheckSum, newCheckSum, checkSum, i;
+	
+	uint16_t oldOpConfig, newOpConfig, oldSOC1Set, oldSOC1Clear;
 		
 	newDesignEnergy = ((unsigned long) newDesignCapacity_mAh*37)/10;
 	newTerminationRate = (uint16_t) (newDesignCapacity_mAh*10)/chargeTerminationCurrent_mA;
@@ -185,6 +187,87 @@ int setupFuelGauge(uint8_t slaveAddress, uint16_t newDesignCapacity_mAh, uint16_
 		TWI_writeByte(slaveAddress, 0x3E, 0x52);
 		TWI_writeByte(slaveAddress, 0x3F, 0x00);
 		
+		checkSum = TWI_readByte(slaveAddress, 0x60);
+	
+	} while (checkSum != newCheckSum);
+	
+	// Setup Block RAM update for Subclass ID 0x40 (64)
+	TWI_writeByte(slaveAddress, 0x61, 0x00); // Enable block access
+	TWI_writeByte(slaveAddress, 0x3E, 0x40); // Set subclass ID
+	TWI_writeByte(slaveAddress,0x3F, 0x00);  // Set block offset 0 or 32		
+	oldCheckSum = TWI_readByte(slaveAddress, 0x60);
+	
+	i = 0;
+	do {		
+		++i;
+		if (i > 100) return 2; // Failed
+		
+		// Compute new checksum
+		tempCheckSum = 0xFF - oldCheckSum;
+		
+		oldOpConfig = readCommand(slaveAddress,0x40);
+		
+		newOpConfig = oldOpConfig | 0x0004; // Enable BATLOWEN Bit
+		
+		// Check if already set correctly
+		if (newOpConfig == oldOpConfig) break;
+		
+		tempCheckSum -= oldOpConfig >> 8;
+		tempCheckSum -= oldOpConfig & 0xFF;
+		
+		TWI_writeByte(slaveAddress, 0x40, newOpConfig >> 8);
+		TWI_writeByte(slaveAddress, 0x41, newOpConfig & 0xFF);
+		
+		// Finish computing new checksum		
+		tempCheckSum += newOpConfig >> 8;
+		tempCheckSum += newOpConfig & 0xFF;
+		
+		newCheckSum = 0xFF - tempCheckSum;
+		TWI_writeByte(slaveAddress, 0x60, newCheckSum);
+		
+		// Verify RAM update is complete
+		TWI_writeByte(slaveAddress, 0x3E, 0x40);
+		TWI_writeByte(slaveAddress, 0x3F, 0x00);		
+		checkSum = TWI_readByte(slaveAddress, 0x60);
+	
+	} while (checkSum != newCheckSum);
+	
+	
+	// Setup Block RAM update for Subclass ID 0x40 (64)
+	TWI_writeByte(slaveAddress, 0x3E, 0x31); // Set subclass ID
+	TWI_writeByte(slaveAddress,0x3F, 0x00);  // Set block offset 0 or 32	
+	oldCheckSum = TWI_readByte(slaveAddress, 0x60);
+	
+	i = 0;
+	do {		
+		++i;
+		if (i > 100) return 2; // Failed
+		
+		// Compute new checksum
+		tempCheckSum = 0xFF - oldCheckSum;
+		
+		oldSOC1Set = TWI_readByte(slaveAddress,0x40);
+		oldSOC1Clear = TWI_readByte(slaveAddress,0x41);
+		
+		// Check if already set correctly
+		if (oldSOC1Set == alarmSOC && oldSOC1Clear == alarmSOC) break;
+		
+		tempCheckSum -= oldSOC1Set;
+		tempCheckSum -= oldSOC1Clear;
+		
+		TWI_writeByte(slaveAddress, 0x40, alarmSOC);
+		TWI_writeByte(slaveAddress, 0x41, alarmSOC);
+		
+		// Finish computing new checksum		
+		tempCheckSum += alarmSOC;
+		tempCheckSum += alarmSOC;
+		
+		newCheckSum = 0xFF - tempCheckSum;
+		TWI_writeByte(slaveAddress, 0x60, newCheckSum);
+		
+		// Verify RAM update is complete
+		TWI_writeByte(slaveAddress, 0x3E, 0x31);
+		TWI_writeByte(slaveAddress, 0x3F, 0x00);		
 		checkSum = TWI_readByte(slaveAddress, 0x60);
 	
 	} while (checkSum != newCheckSum);

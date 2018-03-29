@@ -25,7 +25,7 @@ uint16_t 	readCommand(uint8_t slaveAddress, uint8_t cmdByte1);
 
 uint16_t 	readSubCommand(uint8_t slaveAddress, uint16_t controlData);
 
-int 		setupFuelGauge(uint8_t slaveAddress, uint16_t newDesignCapacity_mAh, uint16_t newTerminationVoltage_mV, uint16_t chargeTerminationCurrent_mA);
+int 		setupFuelGauge(uint8_t slaveAddress, uint16_t newDesignCapacity_mAh, uint16_t newTerminationVoltage_mV, uint16_t chargeTerminationCurrent_mA, uint8_t alarmSOC);
 int 		checkIfSealed(uint8_t slaveAddress);
 
 uint8_t 	decodeBCD(uint8_t BCD);

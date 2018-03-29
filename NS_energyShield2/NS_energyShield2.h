@@ -46,6 +46,11 @@
 #define BATTERY_TERMCUR_MA 65
 #endif
 
+// Define alarm state-of-charge in percent (%)
+#ifndef ALARM_SOC 
+#define ALARM_SOC 10
+#endif
+
 class NS_energyShield2 
 {
 	public:

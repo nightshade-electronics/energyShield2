@@ -299,11 +299,13 @@ int NS_energyShield2::batteryAlert(uint8_t alarmSOC) {
 	i=0;
 	do {
 		++i;
-		if (i > 100) return 1; // Failed		
+		if (i > 2) return 42; // Failed		
 		// Unseal
 		writeCommand(FG_SLAVE_ADDR, 0x00, 0x8000);
 		writeCommand(FG_SLAVE_ADDR, 0x00, 0x8000);
-		delay(10);
+		delay(100);
+		for (int x=0; x<100; ++x) if (!checkIfSealed(FG_SLAVE_ADDR)) break;
+		delay(5000);
 	} while (checkIfSealed(FG_SLAVE_ADDR));
 	
 	//Change to CONFIG UPDATE mode
@@ -352,7 +354,7 @@ int NS_energyShield2::batteryAlert(uint8_t alarmSOC) {
 		checkSum = TWI_readByte(FG_SLAVE_ADDR, 0x60);
 	
 	} while (checkSum != newCheckSum);
-	
+
 	
 	// Setup Block RAM update for Subclass ID 0x40 (64)
 	TWI_writeByte(FG_SLAVE_ADDR, 0x3E, 0x31); // Set subclass ID
@@ -443,10 +445,7 @@ int NS_energyShield2::begin()
 	NS_energyShield2::clearAlarms();		
 	
 	// Setup Fuel Gauge	
-	if(readCommand(FG_SLAVE_ADDR, 0x06) & 0x0020) {
-		error |= setupFuelGauge(FG_SLAVE_ADDR, _batteryCapacity, BATTERY_TERMVOLT_MV, BATTERY_TERMCUR_MA); // Write correct RAM values
-		error |= NS_energyShield2::batteryAlert(10); // Set low battery alarm to 10%
-	}
+	error |= setupFuelGauge(FG_SLAVE_ADDR, _batteryCapacity, BATTERY_TERMVOLT_MV, BATTERY_TERMCUR_MA, ALARM_SOC); // Write correct RAM values
 		
 	return error;
 }
