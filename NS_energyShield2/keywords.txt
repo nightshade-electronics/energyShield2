@@ -29,6 +29,7 @@ sleepSeconds	KEYWORD2
 
 # Solar
 setVMPP	KEYWORD2
+readVMPP	KEYWORD2
 inputVoltage	KEYWORD2
 
 # Battery
