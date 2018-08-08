@@ -18,13 +18,11 @@
 // Creates an instance of NS_energyShield2
 NS_energyShield2::NS_energyShield2()
 {
-	Wire.begin();
 	_batteryCapacity = BATTERY_CAPACITY;		
 }
 
 // Creates an instance of NS_energyShield2 and defines custom battery size
 NS_energyShield2::NS_energyShield2(uint16_t batteryCapacity_mAh) {
-	Wire.begin();
 	_batteryCapacity = batteryCapacity_mAh;	
 }
 
