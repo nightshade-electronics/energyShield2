@@ -6,7 +6,7 @@
 # Datatypes (KEYWORD1)
 #######################################
 
-NS_energyShield2	KEYWORD1	NS_energyShield2
+NS_energyShield2	KEYWORD1
 
 #######################################
 # Methods and Functions (KEYWORD2)
@@ -29,6 +29,7 @@ sleepSeconds	KEYWORD2
 
 # Solar
 setVMPP	KEYWORD2
+readVMPP	KEYWORD2
 inputVoltage	KEYWORD2
 
 # Battery

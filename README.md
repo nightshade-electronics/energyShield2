@@ -47,6 +47,7 @@ Methods
 	batteryAlert()
 	temperature()
 	setVMPP()
+	readVMPP()
 	inputVoltage()
 	setTimeAndDate()
 	readClock()
