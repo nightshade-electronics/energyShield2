@@ -1,12 +1,12 @@
-energyShield 2 Library
+energyShield 2 Pro Library
 ============
 
-The energyShield 2 library provides software functions that allow the user to easily 
+The energyShield 2 Pro library provides software functions that allow the user to easily 
 access all of the energyShield's advanced functionality. This functionality comes 
 from the energyShield's integrated battery fuel gauge, real-time clock, solar input 
 regulation, and voltage measurement ability. 
 
-**Buy the energyShield 2 at NightShade Electronics' online store: https://ns-electric.com/shop/**
+**Buy the energyShield 2 Pro at NightShade Electronics' online store: https://ns-electric.com/shop/**
 
 Written by Aaron Liebold for NightShade Electronics.
 
